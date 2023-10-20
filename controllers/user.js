@@ -27,9 +27,30 @@ const userController = {
       });
     }
   },
-  login: (req, res) => {},
+  login: (req, res) => {
+    const { email, password } = req.body;
+    const emailExist = User.getUserByEmail(email);
+    if (!emailExist) {
+      res.status(401).render('message', {
+        title: 'The account not found',
+        message: 'The account is not valid'
+      });
+    } else {
+      if (emailExist.password === password) {
+        res.status(200).redirect('/home');
+      } else {
+        res.status(409).render('message', {
+          title: 'The account not found',
+          message: 'The account not valid'
+        });
+      }
+    }
+  },
   main: (req, res) => {
-    res.status(200).render('form');
+    res.status(200).render('form', {
+      action: '/login',
+      button: 'Log in'
+    });
   }
 };
 
