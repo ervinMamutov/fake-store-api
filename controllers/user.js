@@ -1,8 +1,10 @@
+import bcrypt from 'bcryptjs';
 import User from '../models/user.js';
 import validEmail from '../utils/validateEmail.js';
 import validPassword from '../utils/validatePassword.js';
+import hashPassword from '../utils/hashPassword.js';
 
-const userController = {
+const userControllers = {
   signUp: (req, res) => {
     const { email, password } = req.body;
     const emailExist = User.getUserByEmail(email);
@@ -10,10 +12,13 @@ const userController = {
       const isUserEmail = validEmail(email);
       const isUserPassword = validPassword(password);
       if (isUserEmail && isUserPassword) {
-        const user = new User(email, password);
+        const hashedPassword = hashPassword(password);
+        console.log(email, hashedPassword);
+        const user = new User(email, hashedPassword);
         user.addUser();
-        console.log('user created');
-        res.status(201).redirect('/home');
+        req.session.isLoggedIn = true;
+        req.session.email = email;
+        res.status(302).redirect('/');
       } else {
         res.status(409).render('message', {
           title: 'Is not valid',
@@ -27,7 +32,7 @@ const userController = {
       });
     }
   },
-  login: (req, res) => {
+  logIn: (req, res) => {
     const { email, password } = req.body;
     const emailExist = User.getUserByEmail(email);
     if (!emailExist) {
@@ -36,22 +41,43 @@ const userController = {
         message: 'The account is not valid'
       });
     } else {
-      if (emailExist.password === password) {
-        res.status(200).redirect('/home');
-      } else {
-        res.status(409).render('message', {
-          title: 'The account not found',
-          message: 'The account not valid'
-        });
-      }
+      // check password
+      bcrypt.compare(password, emailExist.password, (err, isValid) => {
+        if (isValid) {
+          req.session.isLoggedIn = true;
+          req.session.email = email;
+          res.status(302).redirect('/');
+        } else {
+          res.status(409).render('message', {
+            title: 'The account not found',
+            message: 'The account not valid'
+          });
+        }
+      });
     }
   },
-  main: (req, res) => {
+  signUpForm: (req, res) => {
+    res.status(200).render('form', {
+      action: '/sign-up',
+      button: 'Sign up',
+      isLoggedIn: req.session.isLoggedIn
+    });
+  },
+  loginForm: (req, res) => {
     res.status(200).render('form', {
       action: '/login',
-      button: 'Log in'
+      button: 'Log in',
+      isLoggedIn: req.session.isLoggedIn
+    });
+  },
+  logOut: (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        console.log(err);
+      }
+      res.status(302).redirect('/');
     });
   }
 };
 
-export default userController;
+export default userControllers;

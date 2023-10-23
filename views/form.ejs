@@ -3,13 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Form</title>
+    <title>Bugatti Store</title>
   </head>
   <body>
-    <form action="<%= action %>" method="POST">
-      <input type="email" name="email" id="name" />
-      <input type="password" name="password" id="password" />
-      <button type="submit"><%= button%></button>
-    </form>
+    <%- include('./includes/nav.ejs', {isLoggedIn: isLoggedIn}) %>
+
+    <div class="form-container">
+      <form action="<%= action %>" method="POST">
+        <label for="email">Email:</label>
+        <input type="email" name="email" id="name" />
+
+        <label for="password">Password:</label>
+        <input type="password" name="password" id="password" />
+
+        <button type="submit"><%= button%></button>
+      </form>
+    </div>
   </body>
 </html>

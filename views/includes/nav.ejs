@@ -1,10 +1,22 @@
 <nav>
-    <ul>
-        <li>
-            <a href="/species/1">1</a>
-        </li>
-        <li>
-            <a href="/species/2">2</a>
-        </li>
-    </ul>
+  <ul>
+    <li>
+      <a href="/">Home</a>
+    </li>
+    <li>
+      <a href="/add-product-form">Add Product</a>
+    </li>
+    <% if (!isLoggedIn) {%>
+    <li>
+      <a href="/form-sign-up">Sign up</a>
+    </li>
+    <li>
+      <a href="/form-login">Login</a>
+    </li>
+    <%}%> <% if(isLoggedIn) {%>
+    <li>
+      <a href="/log-out">Log out</a>
+    </li>
+    <% }%>
+  </ul>
 </nav>
